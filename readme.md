@@ -1,151 +1,147 @@
 # LingoFuse-cppAgent
 
-**Bring any C++ project into the AI agent era.**
+**Bring your existing C++ code into AI agent workflows — without rewriting it.**
 
-Declare a function once. Get an agent tool, a CLI command, and a multi-language plugin — automatically.
+Declare a function once. Get an AI-agent tool, a CLI command, and a cross-language plugin — automatically.
 
-cppAgent is not an accessory to LingoFuse. It is a **C++ integration layer** that borrows the LingoFuse mesh, the LingoFuse-Tools code generator, and a thin Python interface to give C++ projects something they have never had: a fast, automated path into the agent ecosystem.
-
----
-
-## New Here? Start With the Quick Start Guide
-
-**[QUICK_START.md](QUICK_START.md)** — run the LLM in 15 minutes with the pre-built package. No compiler, no IDE, no Python setup.
+cppAgent is a C++ integration layer that borrows the LingoFuse mesh, the LingoFuse-Tools code generator, and a thin Python interface. It exists for one reason: C++ systems are fast, battle-tested, and hard to glue into modern AI workflows. cppAgent removes the glue.
 
 ---
 
-## What Makes This Possible
+## Who This Is For
 
-Three things together. None alone would be enough.
+You have working C++ code. It might be a pricing engine, a simulation core, a network scanner, a batch processor, or a legacy system that nobody wants to touch. You want AI agents, CLI users, and other languages to call it — without rewriting the code, without writing an MCP server, and without hand-maintaining an HTTP bridge.
 
-```mermaid
-flowchart LR
-    LF["LingoFuse<br/>cross-language mesh"]
-    Tools["LingoFuse-Tools<br/>declaration → code"]
-    Py["Python<br/>flexible glue layer"]
+This is what cppAgent is built for.
 
-    LF --> Agent["cppAgent"]
-    Tools --> Agent
-    Py --> Agent
+---
 
-    Agent --> Cpp["Your C++ project"]
-    Agent --> Users["AI agents<br/>plugins · CLI"]
+## What Actually Happens (Real Workflows)
 
-    style Agent fill:#27AE60,stroke:#145A32,stroke-width:3px,color:#FFFFFF
-    style Cpp fill:#2980B9,stroke:#1A5276,stroke-width:3px,color:#FFFFFF
+### Quant Pricing Desk
+
+A portfolio manager asks the internal AI assistant:
+
+> "Run 10,000 Monte Carlo paths on Portfolio A and summarize the 95% VaR."
+
+The assistant calls your C++ `run_monte_carlo` function through cppAgent. The result comes back in seconds. No one wrote an MCP server. No one maintained a REST wrapper. The function was declared once.
+
+**Who does what:**
+- **C++ maintainer**: Declares pricing functions.
+- **Platform engineer**: Runs the agent runtime and local LLM service.
+- **PM / Researcher**: Asks questions in natural language.
+
+**What you get:** Fast, auditable risk analysis. Sensitive data stays inside the network.
+
+---
+
+### Cross-Language Tool Reuse
+
+A data scientist works in Python. A front-end engineer works in JavaScript. Both need to call the same C++ simulation engine.
+
+**Before cppAgent:** Two integration projects. Two sets of bindings. Two things to break when the C++ API changes.
+
+**With cppAgent:** The C++ team declares the function once. The mesh handles the rest.
+
+```python
+from lingofuse import simulation
+result = simulation.run_scenario(scenario_id="rate_shock_200bp", paths=50000)
 ```
 
-| Layer | Contribution |
-|---|---|
-| **LingoFuse** | A cross-language RPC mesh. Wire format, capability matrix, JSON policy — all solved. |
-| **LingoFuse-Tools** | Code generator. One declaration becomes bindings in dozens of languages and three protocols. |
-| **Python** | Interface layer. Easy to write, easy to glue, easy to change. |
-| **cppAgent** | The C++ side of the story. Wire it all together; expose your functions. |
-
----
-
-## What You Get
-
-```mermaid
-flowchart LR
-    subgraph Yours["Your project"]
-        Func["C++ functions"]
-    end
-
-    subgraph cppAgent["cppAgent"]
-        Api["agent_api<br/>tool provider"]
-        Svc["agent_service<br/>beacon"]
-        Cli["llm_cpp_tool<br/>+ llm_client"]
-    end
-
-    subgraph Reached["Who can call you"]
-        Agents["AI agents"]
-        Plugins["Plugins in any language"]
-        CLI["CLI / CI"]
-    end
-
-    Func --> Api --> Svc
-    Svc --> Agents
-    Svc --> Plugins
-    Cli --> Agents
-    Svc --> CLI
-
-    style cppAgent fill:#EAF2F8,stroke:#1A5276,stroke-width:2px
-    style Yours fill:#FEF9E7,stroke:#B7791F,stroke-width:2px
-    style Reached fill:#E8F8F5,stroke:#117A65,stroke-width:2px
+```javascript
+const result = await simulation.runScenario({
+  scenario_id: "rate_shock_200bp",
+  paths: 50000
+});
 ```
 
-**The lifecycle:**
-
-1. Declare a function in C++.
-2. cppAgent registers it on the mesh.
-3. An AI agent calls it like a built-in tool.
-4. An end user writes a plugin in Python, JavaScript, or any other language — and calls the same function.
-
-No MCP protocol boilerplate. No JSON Schema hand-writing. No HTTP service.
+Same function. Same result. No duplicated wrappers.
 
 ---
 
-## Why This Matters for C++
+### Local / Private AI Agent
 
-C++ has always been fast, portable, and hard to glue. Getting a C++ library to talk to an AI agent used to mean:
+A security analyst needs to check a binary against internal malware signatures. The binary cannot leave the secure enclave.
 
-- Writing an MCP server
-- Writing a JSON Schema by hand
-- Writing an HTTP bridge
-- Maintaining all of the above
+The analyst asks the internal assistant. The assistant calls a local C++ scanning tool. The local LLM service processes only text and tool metadata. The binary never moves.
 
-With cppAgent, that collapses into one step: **declare the function**. The generator, the mesh, and the Python glue do the rest.
+**Why this works:** `llm_service` runs a local model. `llm_proxy` forwards plain text to an approved internal endpoint. Nothing goes to a public cloud.
 
-And the same function is then reachable from every language in the ecosystem — not just C++.
+**Who needs this:** Financial services, healthcare, defense, any team with data residency rules.
 
 ---
 
-## Components
+### AI-Assisted C++ Development and CI
 
-| # | Component | Language | Job |
-|---|---|---|---|
-| 1 | `agent_service` | C++ | Beacon. One per mesh. |
-| 2 | `agent_api` | C++ | Tool provider. Replace with your functions. |
-| 3 | `llm_cpp_tool` + `llm_client` | C++ | Client SDK + CLI / REPL. |
-| 4 | `llm_proxy_tool.py` | Python | Server-side tool execution. Zero client changes. |
+A developer opens a pull request that changes a lock-free queue. CI runs:
+
+```bash
+cppagent review --diff HEAD~1 --checks concurrency,memory,api
+```
+
+The CLI calls an approved LLM endpoint with the diff and symbol context. CI posts a review comment:
+
+> "Potential ABA risk in `pop()`. `compare_and_swap` is called without a version tag. See `queue_stress_test`."
+
+The developer can reproduce the finding locally. The code never leaves the internal network.
+
+**What makes this possible:** You declared symbol lookup, call graph, test selection, and benchmark functions. cppAgent turned them into agent tools and CLI commands.
+
+---
+
+### Enterprise Agent Platform
+
+A large enterprise has C++ systems everywhere: trading engines, real-time risk, simulation platforms, network appliances, legacy batch processors.
+
+Instead of building a custom AI integration for each one, the platform team defines a standard cppAgent pattern. Each system declares its safe functions. LingoFuse provides cross-language RPC. The agent platform discovers tools, applies permissions, and logs calls.
+
+**Result:** One integration pattern. Centralized audit. Reusable tools across agents. Lower maintenance cost than custom bridges.
+
+---
+
+## How It Works
+
+### The Lifecycle
+
+1. **Declare** a function in C++.
+2. **cppAgent registers it** on the LingoFuse mesh.
+3. **An AI agent calls it** like a built-in tool.
+4. **Anyone else** — Python, JavaScript, CLI, CI — calls the same function through the mesh.
+
+No MCP protocol boilerplate. No hand-written JSON Schema. No HTTP service.
+
+### The Components
+
+| Component | Language | Job |
+|---|---|---|
+| `agent_service` | C++ | Beacon. One per mesh. |
+| `agent_api` | C++ | Tool provider. Replace with your functions. |
+| `llm_cpp_tool` + `llm_client` | C++ | Client SDK + CLI / REPL. |
+| `llm_proxy_tool.py` | Python | Server-side tool execution. Zero client changes. |
 
 Supporting services: `llm_service.py`, `llm_proxy.py`, `bridge.py`, `mcp_api_tool.py`.
 
----
+### One Call, End to End
 
-## One Call, End to End
-
-The client only sees a question go out and an answer come back. Everything else happens behind the scenes.
-
-```mermaid
-flowchart TB
-    A["Client asks: '2 + 3?'"]
-    B["LLM decides to call a tool"]
-    C["Mesh routes to your C++ function"]
-    D["add(2, 3) runs → 5"]
-    E["LLM turns 5 into a reply"]
-    F["Client receives: '5'"]
-
-    A --> B
-    B --> C
-    C --> D
-    D --> E
-    E --> F
-
-    style A fill:#FEF9E7,stroke:#B7791F,stroke-width:2px,color:#000000
-    style B fill:#EAF2F8,stroke:#1A5276,stroke-width:2px,color:#000000
-    style C fill:#EAF2F8,stroke:#1A5276,stroke-width:2px,color:#000000
-    style D fill:#27AE60,stroke:#145A32,stroke-width:4px,color:#FFFFFF
-    style E fill:#EAF2F8,stroke:#1A5276,stroke-width:2px,color:#000000
-    style F fill:#FEF9E7,stroke:#B7791F,stroke-width:2px,color:#000000
+```
+Client asks: "What is 12 + 34?"
+    ↓
+LLM decides to call a tool
+    ↓
+Mesh routes to your C++ function
+    ↓
+add(12, 34) runs → 46
+    ↓
+LLM turns 46 into a reply
+    ↓
+Client receives: "46"
 ```
 
 The client is unaware of the tool. Your C++ function is the only thing that actually runs.
 
 ---
 
-## Build Guide
+## Build and Run
 
 ### Prerequisites
 
@@ -159,67 +155,35 @@ The client is unaware of the tool. Your C++ function is the only thing that actu
 
 ### Step 1 — Clone LingoFuse
 
-The C++ interface headers and the prebuilt runtime libraries live in the LingoFuse repository. Clone it first:
-
 ```bash
 git clone https://github.com/PassByYou888/LingoFuse.git
 ```
 
-After cloning, the repository layout is:
-
-```
-LingoFuse/
-├── Binary/                     # Prebuilt runtime libraries (Win32 / Win64)
-│   ├── LingoFuse64.dll
-│   └── ...
-├── cpp/                        # C++ interface directory
-│   ├── LingoFuse.h
-│   ├── LingoFuse.c
-│   ├── LingoFuse.hpp
-│   ├── lf_io.hpp
-│   ├── json.hpp
-│   └── CMakeLists.txt
-├── pascal/
-└── Py/
-```
-
-The **C++ interface directory** is `LingoFuse/cpp/`. It contains the five header and source files required by cppAgent, plus the runtime libraries in the sibling `Binary/` directory.
+The C++ interface directory is `LingoFuse/cpp/`. It contains the five header and source files required by cppAgent, plus runtime libraries in `LingoFuse/Binary/`.
 
 ### Step 2 — Configure cppAgent
 
-Pass the path to the C++ interface directory via `-DLINGOFUSE_CPP_DIR`:
+Pass the path to the C++ interface directory via `-DLINGOFUSE_CPP_DIR`.
 
 **Windows (PowerShell) — Visual Studio**
 
 ```powershell
 cd LingoFuse-cppAgent\src
-
 cmake -S . -B ..\x64 `
-      -G "Visual Studio 17 2022" -A x64 `
-      -DLINGOFUSE_CPP_DIR="..\..\LingoFuse\cpp"
+  -G "Visual Studio 17 2022" -A x64 `
+  -DLINGOFUSE_CPP_DIR="..\..\LingoFuse\cpp"
 ```
 
 **Linux / macOS — Makefiles**
 
 ```bash
 cd LingoFuse-cppAgent/src
-
 cmake -S . -B ../build \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DLINGOFUSE_CPP_DIR="../../LingoFuse/cpp"
+  -DCMAKE_BUILD_TYPE=Release \
+  -DLINGOFUSE_CPP_DIR="../../LingoFuse/cpp"
 ```
 
-`LINGOFUSE_CPP_DIR` must point to the directory containing:
-
-```
-LingoFuse.h
-LingoFuse.c
-LingoFuse.hpp
-lf_io.hpp
-json.hpp
-```
-
-There is no auto-detection. The path must be given explicitly.
+`LINGOFUSE_CPP_DIR` must point to the directory containing `LingoFuse.h`, `LingoFuse.c`, `LingoFuse.hpp`, `lf_io.hpp`, and `json.hpp`. There is no auto-detection.
 
 ### Step 3 — Build
 
@@ -237,7 +201,7 @@ cmake --build ../build -j
 
 ### Step 4 — Output
 
-Executables are written directly into `src/` (matching the Pascal project layout):
+Executables are written into `src/`:
 
 | Artifact | Type | Description |
 |---|---|---|
@@ -257,44 +221,41 @@ Copy the LingoFuse runtime library from `LingoFuse/Binary/` next to the executab
 | Linux | `liblingofuse.so` |
 | macOS | `liblingofuse.dylib` |
 
-The loader searches the executable's own directory first, then the system loader path. Placing the library next to the executable is the recommended deployment.
-
 ### Step 6 — Install Python Dependencies
 
-```powershell
+```bash
 pip install -r requirements.txt
 ```
 
 ### Step 7 — Run
 
-```powershell
+```bash
 # Four terminals
-.\agent_service.exe                                     # beacon
-.\agent_api.exe                                         # your tools
+.\agent_service.exe          # beacon
+.\agent_api.exe              # your tools
 python llm_proxy_tool.py --backend-url http://127.0.0.1:1234/v1
 .\llm_cpp_tool.exe --content "What is 12 + 34?" --keep
 ```
-
-For a complete build reference, see [`src/CMakeLists.txt`](src/CMakeLists.txt). For a deeper understanding of the C++ interface and its ABI loading contract, see `LingoFuse_Cpp_Knowledge_Base.md` in the LingoFuse repository.
 
 ---
 
 ## Documentation
 
-### Start here
+### Start Here
 
 | Document | What it covers |
 |---|---|
 | [**QUICK_START.md**](QUICK_START.md) | Run the LLM in 15 minutes with the pre-built package. No compiler needed. |
+| [**LingoFuse-cppAgent_Real_World_Application_Workflows.md**](LingoFuse-cppAgent_Real_World_Application_Workflows.md) | Real engineering workflows: quant pricing, cross-language reuse, private AI, AI-assisted C++ dev, enterprise platform. Who does the work, what triggers it, what the output looks like. |
 
-### Architecture and ecosystem
+### Architecture and Ecosystem
 
 | Document | What it covers |
 |---|---|
 | [LingoFuse_LLM_Ecosystem_User_Guide.md](src/LingoFuse_LLM_Ecosystem_User_Guide.md) | Four core application components, two tool execution paths, capability matrix, streaming protocol |
 | [LingoFuse_LLM_Proxy_Compatibility_Guide.md](src/LingoFuse_LLM_Proxy_Compatibility_Guide.md) | 250+ OpenAI-compatible backends (cloud APIs, local servers, gateways, desktop clients) |
 
-### Component reference
+### Component Reference
 
 | Document | What it covers |
 |---|---|
@@ -303,7 +264,7 @@ For a complete build reference, see [`src/CMakeLists.txt`](src/CMakeLists.txt). 
 | [LingoFuse_LLM_Proxy_Tool_CLI_Guide.md](src/LingoFuse_LLM_Proxy_Tool_CLI_Guide.md) | Tool execution bridge (`llm_proxy_tool` / LTB) — server-side tools |
 | [llm_cpp_tool_User_Guide.md](src/llm_cpp_tool_User_Guide.md) | C++ command-line client — REPL, attachments, Structured Output |
 
-### Model and bridge
+### Model and Bridge
 
 | Document | What it covers |
 |---|---|
