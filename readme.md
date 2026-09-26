@@ -8,6 +8,12 @@ cppAgent is not an accessory to LingoFuse. It is a **C++ integration layer** tha
 
 ---
 
+## New Here? Start With the Quick Start Guide
+
+**[QUICK_START.md](QUICK_START.md)** — run the LLM in 15 minutes with the pre-built package. No compiler, no IDE, no Python setup.
+
+---
+
 ## What Makes This Possible
 
 Three things together. None alone would be enough.
@@ -269,24 +275,40 @@ python llm_proxy_tool.py --backend-url http://127.0.0.1:1234/v1
 .\llm_cpp_tool.exe --content "What is 12 + 34?" --keep
 ```
 
-For a complete build reference, see `CMakeLists.txt`. For a deeper understanding of the C++ interface and its ABI loading contract, see `LingoFuse_Cpp_Knowledge_Base.md` in the LingoFuse repository.
+For a complete build reference, see [`src/CMakeLists.txt`](src/CMakeLists.txt). For a deeper understanding of the C++ interface and its ABI loading contract, see `LingoFuse_Cpp_Knowledge_Base.md` in the LingoFuse repository.
 
 ---
 
 ## Documentation
 
-All docs live alongside the source in `src/`.
+### Start here
 
-| Topic | File |
+| Document | What it covers |
 |---|---|
-| Ecosystem overview | [`src/LingoFuse_LLM_Ecosystem_User_Guide.md`](src/LingoFuse_LLM_Ecosystem_User_Guide.md) |
-| Local inference service | [`src/LingoFuse_LLM_Service_CLI_guide.md`](src/LingoFuse_LLM_Service_CLI_guide.md) |
-| Pure text proxy | [`src/LingoFuse_LLM_Proxy_CLI_Guide.md`](src/LingoFuse_LLM_Proxy_CLI_Guide.md) |
-| Tool execution bridge (LTB) | [`src/LingoFuse_LLM_Proxy_Tool_CLI_Guide.md`](src/LingoFuse_LLM_Proxy_Tool_CLI_Guide.md) |
-| Backend compatibility | [`src/LingoFuse_LLM_Proxy_Compatibility_Guide.md`](src/LingoFuse_LLM_Proxy_Compatibility_Guide.md) |
-| C++ client guide | [`src/llm_cpp_tool_User_Guide.md`](src/llm_cpp_tool_User_Guide.md) |
-| HTTP bridge | [`src/lingofuse/Bridge_User_Guide.md`](src/lingofuse/Bridge_User_Guide.md) |
-| Default model notes | [`src/NVIDIA-Nemotron-3-Nano-Omni-30B-A3B-Reasoning-UD-IQ4_XS.md`](src/NVIDIA-Nemotron-3-Nano-Omni-30B-A3B-Reasoning-UD-IQ4_XS.md) |
+| [**QUICK_START.md**](QUICK_START.md) | Run the LLM in 15 minutes with the pre-built package. No compiler needed. |
+
+### Architecture and ecosystem
+
+| Document | What it covers |
+|---|---|
+| [LingoFuse_LLM_Ecosystem_User_Guide.md](src/LingoFuse_LLM_Ecosystem_User_Guide.md) | Four core application components, two tool execution paths, capability matrix, streaming protocol |
+| [LingoFuse_LLM_Proxy_Compatibility_Guide.md](src/LingoFuse_LLM_Proxy_Compatibility_Guide.md) | 250+ OpenAI-compatible backends (cloud APIs, local servers, gateways, desktop clients) |
+
+### Component reference
+
+| Document | What it covers |
+|---|---|
+| [LingoFuse_LLM_Service_CLI_guide.md](src/LingoFuse_LLM_Service_CLI_guide.md) | Local inference service (`llm_service`) — text-only, embeddable |
+| [LingoFuse_LLM_Proxy_CLI_Guide.md](src/LingoFuse_LLM_Proxy_CLI_Guide.md) | Pure text forwarder (`llm_proxy`) — no tools |
+| [LingoFuse_LLM_Proxy_Tool_CLI_Guide.md](src/LingoFuse_LLM_Proxy_Tool_CLI_Guide.md) | Tool execution bridge (`llm_proxy_tool` / LTB) — server-side tools |
+| [llm_cpp_tool_User_Guide.md](src/llm_cpp_tool_User_Guide.md) | C++ command-line client — REPL, attachments, Structured Output |
+
+### Model and bridge
+
+| Document | What it covers |
+|---|---|
+| [NVIDIA-Nemotron-3-Nano-Omni-30B-A3B-Reasoning-UD-IQ4_XS.md](src/NVIDIA-Nemotron-3-Nano-Omni-30B-A3B-Reasoning-UD-IQ4_XS.md) | Recommended multimodal model — download, quantization, deployment |
+| [Bridge_User_Guide.md](src/lingofuse/Bridge_User_Guide.md) | HTTP ↔ LingoFuse gateway and JSON repair service |
 
 ---
 
