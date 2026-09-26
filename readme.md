@@ -4,7 +4,7 @@
 
 Declare a function once. Get an AI-agent tool, a CLI command, and a cross-language plugin — automatically.
 
-cppAgent is a C++ integration layer that borrows the LingoFuse mesh, the LingoFuse-Tools code generator, and a thin Python interface. It exists for one reason: C++ systems are fast, battle-tested, and hard to glue into modern AI workflows. cppAgent removes the glue.
+cppAgent is a C++ integration layer built on the LingoFuse mesh, the LingoFuse-Tools code generator, and a thin Python service layer. It exists for one reason: C++ systems are fast, battle-tested, and hard to glue into modern AI workflows. cppAgent removes the glue.
 
 ---
 
@@ -18,35 +18,60 @@ This is what cppAgent is built for.
 
 ## What Actually Happens (Real Workflows)
 
-### Quant Pricing Desk
+### 1. Quant Pricing Desk
 
 A portfolio manager asks the internal AI assistant:
 
 > "Run 10,000 Monte Carlo paths on Portfolio A and summarize the 95% VaR."
 
-The assistant calls your C++ `run_monte_carlo` function through cppAgent. The result comes back in seconds. No one wrote an MCP server. No one maintained a REST wrapper. The function was declared once.
+The assistant calls your C++ `run_monte_carlo` function through cppAgent. The result comes back in seconds.
 
-**Who does what:**
-- **C++ maintainer**: Declares pricing functions.
-- **Platform engineer**: Runs the agent runtime and local LLM service.
-- **PM / Researcher**: Asks questions in natural language.
+```mermaid
+flowchart LR
+    A["Portfolio Manager<br/>asks a question"]
+    B["AI Assistant<br/>calls the tool"]
+    C["C++ Pricing Function<br/>runs the math"]
+    D["Answer<br/>back in seconds"]
 
-**What you get:** Fast, auditable risk analysis. Sensitive data stays inside the network.
+    A --> B --> C --> D
+```
+
+**No MCP server. No REST wrapper. The function was declared once.**
+
+**Roles**
+- **C++ maintainer** — declares pricing functions.
+- **Platform engineer** — runs the agent runtime and local LLM service.
+- **PM / Researcher** — asks questions in natural language.
+
+**Outcome** — Fast, auditable risk analysis. Sensitive data stays inside the network.
 
 ---
 
-### Cross-Language Tool Reuse
+### 2. Cross-Language Tool Reuse
 
 A data scientist works in Python. A front-end engineer works in JavaScript. Both need to call the same C++ simulation engine.
 
-**Before cppAgent:** Two integration projects. Two sets of bindings. Two things to break when the C++ API changes.
+**Before cppAgent** — two integration projects, two sets of bindings, two things to break when the C++ API changes.
 
-**With cppAgent:** The C++ team declares the function once. The mesh handles the rest.
+**With cppAgent** — the C++ team declares the function once. Everyone else just calls it.
+
+```mermaid
+flowchart TB
+    DECL["One C++ Declaration"]
+    DECL --> PY["Python Notebook"]
+    DECL --> JS["JavaScript Dashboard"]
+    DECL --> CLI["CLI Script"]
+    DECL --> AI["AI Agent Tool"]
+```
+
+Python consumer:
 
 ```python
 from lingofuse import simulation
 result = simulation.run_scenario(scenario_id="rate_shock_200bp", paths=50000)
 ```
+
+JavaScript consumer:
 
 ```javascript
 const result = await simulation.runScenario({
@@ -59,19 +84,29 @@ Same function. Same result. No duplicated wrappers.
 
 ---
 
-### Local / Private AI Agent
+### 3. Local / Private AI Agent
 
 A security analyst needs to check a binary against internal malware signatures. The binary cannot leave the secure enclave.
 
-The analyst asks the internal assistant. The assistant calls a local C++ scanning tool. The local LLM service processes only text and tool metadata. The binary never moves.
+The analyst asks the internal assistant. The assistant calls a local C++ scanning tool. Nothing leaves the network.
 
-**Why this works:** `llm_service` runs a local model. `llm_proxy` forwards plain text to an approved internal endpoint. Nothing goes to a public cloud.
+```mermaid
+flowchart LR
+    A["Analyst<br/>asks a question"]
+    B["Internal AI Assistant<br/>local LLM"]
+    C["C++ Scanner<br/>reads the binary"]
+    D["Answer<br/>binary never moves"]
 
-**Who needs this:** Financial services, healthcare, defense, any team with data residency rules.
+    A --> B --> C --> D
+```
+
+**Why this works** — `llm_service` runs a local model. `llm_proxy` forwards plain text to an approved internal endpoint. Public cloud LLMs are never contacted.
+
+**Who needs this** — financial services, healthcare, defense, any team with data residency rules.
 
 ---
 
-### AI-Assisted C++ Development and CI
+### 4. AI-Assisted C++ Development and CI
 
 A developer opens a pull request that changes a lock-free queue. CI runs:
 
@@ -79,38 +114,84 @@ A developer opens a pull request that changes a lock-free queue. CI runs:
 cppagent review --diff HEAD~1 --checks concurrency,memory,api
 ```
 
-The CLI calls an approved LLM endpoint with the diff and symbol context. CI posts a review comment:
+CI posts a review comment:
 
 > "Potential ABA risk in `pop()`. `compare_and_swap` is called without a version tag. See `queue_stress_test`."
 
-The developer can reproduce the finding locally. The code never leaves the internal network.
+```mermaid
+flowchart LR
+    A["Developer<br/>pushes PR"]
+    B["CI<br/>runs cppagent review"]
+    C["C++ Tools<br/>symbols + call graph"]
+    D["Review Comment<br/>specific and actionable"]
 
-**What makes this possible:** You declared symbol lookup, call graph, test selection, and benchmark functions. cppAgent turned them into agent tools and CLI commands.
+    A --> B --> C --> D
+```
+
+**What makes this possible** — you declared symbol lookup, call graph, test selection, and benchmark functions. cppAgent turned them into agent tools and CLI commands.
 
 ---
 
-### Enterprise Agent Platform
+### 5. Enterprise Agent Platform
 
 A large enterprise has C++ systems everywhere: trading engines, real-time risk, simulation platforms, network appliances, legacy batch processors.
 
-Instead of building a custom AI integration for each one, the platform team defines a standard cppAgent pattern. Each system declares its safe functions. LingoFuse provides cross-language RPC. The agent platform discovers tools, applies permissions, and logs calls.
+Instead of building a custom AI integration for each one, the platform team defines a standard cppAgent pattern. Each system declares its safe functions once.
 
-**Result:** One integration pattern. Centralized audit. Reusable tools across agents. Lower maintenance cost than custom bridges.
+```mermaid
+flowchart TB
+    subgraph SYS["C++ Systems"]
+        TRADE["Trading Engine"]
+        RISK["Real-Time Risk"]
+        SIM["Simulation Platform"]
+        NET["Network Appliance"]
+        BATCH["Legacy Batch Processor"]
+    end
+
+    subgraph PLAT["Shared Agent Platform"]
+        DISC["Tool Discovery"]
+        PERM["Permission Control"]
+        AUDIT["Audit & Logging"]
+    end
+
+    SYS --> PLAT
+```
+
+**Result** — one integration pattern. Centralized audit. Reusable tools across agents. Lower maintenance cost than custom bridges.
 
 ---
 
 ## How It Works
 
-### The Lifecycle
+Four stages. Each one is a separate concern.
 
-1. **Declare** a function in C++.
-2. **cppAgent registers it** on the LingoFuse mesh.
-3. **An AI agent calls it** like a built-in tool.
-4. **Anyone else** — Python, JavaScript, CLI, CI — calls the same function through the mesh.
+```mermaid
+flowchart LR
+    A["1. Declare<br/>C++ function"]
+    B["2. Register<br/>on the mesh"]
+    C["3. Agent calls<br/>as a tool"]
+    D["4. Anyone calls<br/>from any language"]
 
-No MCP protocol boilerplate. No hand-written JSON Schema. No HTTP service.
+    A --> B --> C --> D
+```
 
-### The Components
+**Stage 1 — Declare.** Add a declaration in C++ for a function you want to expose. Nothing else.
+
+**Stage 2 — Register.** cppAgent registers the function on the LingoFuse mesh and generates three artifacts from the same declaration.
+
+```mermaid
+flowchart TB
+    DECL["C++ Declaration"]
+    DECL --> TOOL["AI-Agent Tool Schema"]
+    DECL --> CLICMD["CLI Command"]
+    DECL --> PLUG["Cross-Language Plugin"]
+```
+
+**Stage 3 — Agent Calls.** An AI agent sees the tool like any built-in capability. The mesh routes the call to your C++ function.
+
+**Stage 4 — Anyone Calls.** Python, JavaScript, CLI, CI — all reach the same function through the mesh.
+
+### Components
 
 | Component | Language | Job |
 |---|---|---|
@@ -121,20 +202,18 @@ No MCP protocol boilerplate. No hand-written JSON Schema. No HTTP service.
 
 Supporting services: `llm_service.py`, `llm_proxy.py`, `bridge.py`, `mcp_api_tool.py`.
 
-### One Call, End to End
+### End-to-End Call
 
-```
-Client asks: "What is 12 + 34?"
-    ↓
-LLM decides to call a tool
-    ↓
-Mesh routes to your C++ function
-    ↓
-add(12, 34) runs → 46
-    ↓
-LLM turns 46 into a reply
-    ↓
-Client receives: "46"
+One request, four moments: intent, decision, execution, reply.
+
+```mermaid
+flowchart LR
+    A["Client<br/>asks: what is 12 + 34?"]
+    B["LLM<br/>picks tool: add"]
+    C["C++ Function<br/>runs add 12 34 → 46"]
+    D["Client<br/>receives: 46"]
+
+    A --> B --> C --> D
 ```
 
 The client is unaware of the tool. Your C++ function is the only thing that actually runs.
@@ -229,8 +308,20 @@ pip install -r requirements.txt
 
 ### Step 7 — Run
 
+Start four processes. Order matters: beacon first, tools next, then the backend, then the client.
+
+```mermaid
+flowchart LR
+    T1["1. agent_service<br/>beacon"]
+    T2["2. agent_api<br/>your tools"]
+    T3["3. llm_proxy_tool.py<br/>tool backend"]
+    T4["4. llm_cpp_tool<br/>client"]
+
+    T1 --> T2 --> T3 --> T4
+```
+
 ```bash
-# Four terminals
+# Four terminals, in this order
 .\agent_service.exe          # beacon
 .\agent_api.exe              # your tools
 python llm_proxy_tool.py --backend-url http://127.0.0.1:1234/v1
@@ -246,7 +337,7 @@ python llm_proxy_tool.py --backend-url http://127.0.0.1:1234/v1
 | Document | What it covers |
 |---|---|
 | [**QUICK_START.md**](QUICK_START.md) | Run the LLM in 15 minutes with the pre-built package. No compiler needed. |
-| [**LingoFuse-cppAgent_Real_World_Application_Workflows.md**](LingoFuse-cppAgent_Real_World_Application_Workflows.md) | Real engineering workflows: quant pricing, cross-language reuse, private AI, AI-assisted C++ dev, enterprise platform. Who does the work, what triggers it, what the output looks like. |
+| [**LingoFuse-cppAgent_Real_World_Application_Workflows.md**](LingoFuse-cppAgent_Real_World_Application_Workflows.md) | Real engineering workflows — quant pricing, cross-language reuse, private AI, AI-assisted C++ dev, enterprise platform. Who does the work, what triggers it, what the output looks like. |
 
 ### Architecture and Ecosystem
 
