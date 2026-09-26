@@ -4,6 +4,7 @@ del/s *.local
 del/s *.identcache
 del/s *.lps
 del/s *.spec
+del/s *.pdb
 rd /q /s .\lib
 rd /q /s .\mcp_configs
 rd /q /s .\build
