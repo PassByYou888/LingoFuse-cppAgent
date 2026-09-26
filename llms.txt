@@ -1,0 +1,38 @@
+# LingoFuse-cppAgent
+
+> Bring your existing C++ code into AI agent workflows — without rewriting it. Declare a C++ function once, get an AI-agent tool, a CLI command, and a cross-language plugin automatically.
+
+LingoFuse-cppAgent is a C++ integration layer built on the LingoFuse mesh. It exists for one reason: C++ systems are fast, battle-tested, and hard to glue into modern AI workflows. cppAgent removes the glue — no MCP server, no JSON Schema, no HTTP bridge. A single C++ declaration becomes an agent tool, a CLI command, and a cross-language plugin through the LingoFuse RPC mesh.
+
+## Getting Started
+
+- [QUICK_START.md](QUICK_START.md): Run the LLM in 15 minutes with the pre-built package. No compiler needed. This is the fastest way to verify the end-to-end flow.
+- [README.md](README.md): Full build instructions for Windows (Visual Studio) and Linux/macOS (Makefiles), including CMake configuration, runtime library placement, and Python dependencies.
+
+## Real-World Workflows
+
+- [LingoFuse-cppAgent_Real_World_Application_Workflows.md](LingoFuse-cppAgent_Real_World_Application_Workflows.md): Real engineering workflows — quant pricing desk, cross-language tool reuse, local/private AI agents, AI-assisted C++ development and CI, and enterprise agent platform integration. Who does the work, what triggers it, what the output looks like, and where the operational boundaries are.
+
+## Architecture and Ecosystem
+
+- [LingoFuse_LLM_Ecosystem_User_Guide.md](src/LingoFuse_LLM_Ecosystem_User_Guide.md): Four core application components (agent_service, agent_api, llm_cpp_tool, llm_proxy_tool), two tool execution paths, capability matrix, and streaming protocol.
+- [LingoFuse_LLM_Proxy_Compatibility_Guide.md](src/LingoFuse_LLM_Proxy_Compatibility_Guide.md): 250+ OpenAI-compatible backends — cloud APIs, local servers, gateways, and desktop clients.
+
+## Component Reference
+
+- [LingoFuse_LLM_Service_CLI_guide.md](src/LingoFuse_LLM_Service_CLI_guide.md): Local inference service (`llm_service`) — text-only, embeddable, runs a local model for privacy-sensitive environments.
+- [LingoFuse_LLM_Proxy_CLI_Guide.md](src/LingoFuse_LLM_Proxy_CLI_Guide.md): Pure text forwarder (`llm_proxy`) — no tools, forwards plain text to an approved internal LLM endpoint.
+- [LingoFuse_LLM_Proxy_Tool_CLI_Guide.md](src/LingoFuse_LLM_Proxy_Tool_CLI_Guide.md): Tool execution bridge (`llm_proxy_tool` / LTB) — server-side tool execution with zero client changes.
+- [llm_cpp_tool_User_Guide.md](src/llm_cpp_tool_User_Guide.md): C++ command-line client — REPL, attachments, and Structured Output support.
+
+## Model and Bridge
+
+- [NVIDIA-Nemotron-3-Nano-Omni-30B-A3B-Reasoning-UD-IQ4_XS.md](src/NVIDIA-Nemotron-3-Nano-Omni-30B-A3B-Reasoning-UD-IQ4_XS.md): Recommended multimodal model — download, quantization, and deployment instructions.
+- [Bridge_User_Guide.md](src/lingofuse/Bridge_User_Guide.md): HTTP ↔ LingoFuse gateway and JSON repair service for browser, Node.js, and PHP clients.
+
+## Ecosystem
+
+- [LingoFuse](https://github.com/PassByYou888/LingoFuse): Core cross-language mesh — 30+ languages, sub-millisecond local latency, service discovery, streaming, and no IDL.
+- [LingoFuse-Tools](https://github.com/PassByYou888/LingoFuse-Tools): Declaration → code generator for automatic tool schema and CLI generation.
+- [LingoFuse-pasAgent-v3](https://github.com/PassByYou888/LingoFuse-pasAgent-v3): Reference agent implementation demonstrating the full agent loop.
+- [LingoFuse-pasAgent](https://github.com/PassByYou888/LingoFuse-pasAgent): Earlier generation agent implementation.
